@@ -2,6 +2,7 @@ import os
 import sys
 import textwrap
 import warnings
+import shippo
 
 from shippo import error, util
 
@@ -10,15 +11,6 @@ from shippo import error, util
 # - Google App Engine has urlfetch
 # - Use Pycurl if it's there (at least it verifies SSL certs)
 # - Fall back to urllib2 with a warning if needed
-try:
-    import urllib2
-except ImportError:
-    pass
-
-try:
-    import pycurl
-except ImportError:
-    pycurl = None
 
 try:
     import requests
@@ -52,8 +44,7 @@ except ImportError:
 
 
 def new_default_http_client(*args, **kwargs):
-    impl = UrlFetchClient
-    return impl(*args, **kwargs)
+    return RequestsClient(*args, **kwargs)
 
 
 class HTTPClient(object):
@@ -83,7 +74,7 @@ class RequestsClient(HTTPClient):
                 result = requests.request(method,
                                           url,
                                           headers=headers,
-					  auth=(shippo.username, shippo.password),
+					  auth=shippo.auth,
                                           data=post_data,
                                           timeout=80,
                                           **kwargs)

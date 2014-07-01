@@ -186,36 +186,6 @@ class APIResource(ShippoObject):
         return "%s/%s" % (base, extn)
 
 
-class ListObject(ShippoObject):
-
-    def all(self, **params):
-        return self.request('get', self['url'], params)
-
-    def create(self, **params):
-        return self.request('post', self['url'], params)
-
-    def retrieve(self, id, **params):
-        base = self.get('url')
-        id = util.utf8(id)
-        extn = urllib.quote_plus(id)
-        url = "%s/%s" % (base, extn)
-
-        return self.request('get', url, params)
-
-
-# Classes of API operations
-
-
-class ListableAPIResource(APIResource):
-
-    @classmethod
-    def all(cls, auth=None, **params):
-        requestor = api_requestor.APIRequestor(auth)
-        url = cls.class_url()
-        response, auth = requestor.request('get', url, params)
-        return convert_to_shippo_object(response, auth)
-
-
 class CreateableAPIResource(APIResource):
 
     @classmethod
@@ -228,6 +198,11 @@ class CreateableAPIResource(APIResource):
 # API objects
 
 
-class Address(CreateableAPIResource, ListableAPIResource):
+class Address(CreateableAPIResource):
     def validate(self, **params):
         url = self.instance_url() + '/validate'
+
+    @classmethod
+    def class_url(cls):
+        cls_name = cls.class_name()
+        return "/v1/%ses" % (cls_name,)
